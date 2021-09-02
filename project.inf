@@ -1,0 +1,9 @@
+Type: ae3.Package
+Name: ae3.sdk-lang.acm-tpl
+Info: Scripting language: ACM.TPL
+Requires: ae3.api ae3.sdk acm-base-api
+Provides:	\
+	lang.acm-tpl \
+	source-process:compile-java \
+	source-process:ae3-package:package \
+
