@@ -54,9 +54,14 @@ final class TplParser {
 			throws Evaluate.CompilationException {
 		
 		final ProgramAssembly assembly = new ProgramAssembly();
-		TplParser.parse(assembly, Tokens.parse(source), self, recursions == null
-			? new Stack<TagRECURSION>()
-			: recursions, folder);
+		TplParser.parse(
+				assembly,
+				Tokens.parse(source),
+				self,
+				recursions == null
+					? new Stack<TagRECURSION>()
+					: recursions,
+				folder);
 		return assembly.toProgram(0);
 	}
 
@@ -65,9 +70,14 @@ final class TplParser {
 		
 		final ProgramAssembly assembly = new ProgramAssembly();
 		assembly.addDebug("TPL BLOCK, tokens=" + source);
-		TplParser.parse(assembly, source, self, recursions == null
-			? new Stack<TagRECURSION>()
-			: recursions, folder);
+		TplParser.parse(
+				assembly,
+				source,
+				self,
+				recursions == null
+					? new Stack<TagRECURSION>()
+					: recursions,
+				folder);
 		return assembly.toProgram(0);
 	}
 
@@ -78,11 +88,9 @@ final class TplParser {
 			: recursions.peek();
 	}
 
-	static final void parse(final ProgramAssembly assembly,
-			final Token[] tokens,
-			final Instruction self,
-			final Stack<TagRECURSION> recursions,
-			final Function<String, String> folder) throws Evaluate.CompilationException {
+	static final void
+			parse(final ProgramAssembly assembly, final Token[] tokens, final Instruction self, final Stack<TagRECURSION> recursions, final Function<String, String> folder)
+					throws Evaluate.CompilationException {
 		
 		ExecProcess ctx = null;
 		for (int currentTokenIndex = 0; currentTokenIndex < tokens.length; currentTokenIndex++) {
@@ -250,9 +258,13 @@ final class TplParser {
 				assembly.addInstruction(instruction);
 				continue;
 			}
-			final int endPosition = Tokens.findClosing(tokens, currentTokenIndex + 1, tagName.equals("ELSE") || tagName.equals("TRY")
-				? tagName
-				: tagName + ':', '/' + tagName);
+			final int endPosition = Tokens.findClosing(
+					tokens,
+					currentTokenIndex + 1,
+					tagName.equals("ELSE") || tagName.equals("TRY")
+						? tagName
+						: tagName + ':',
+					'/' + tagName);
 			if (endPosition == -1) {
 				final String message = "TPL: Can't find closing tag for '" + tagName + "', opened by: " + currentToken.toString();
 				Report.error("ACM/TPL", message);
@@ -368,8 +380,8 @@ final class TplParser {
 					assembly.addError("Reference (lvalue) required (or 'null' if output should be ignored)!");
 					return;
 				}
-				reference.toReferenceReadBeforeWrite(assembly, null, null, false, true);
-				reference.toReferenceWriteAfterRead(assembly, null, null, new ModifierArgumentA30IMM(TplParser.toSourceOriginal(innerTokens)), ResultHandler.FA_BNN_NXT);
+				reference.toReferenceReadBeforeWrite(assembly, null, null, false, false, true);
+				reference.toReferenceWriteAfterRead(assembly, null, null, new ModifierArgumentA30IMM(TplParser.toSourceOriginal(innerTokens)), true, ResultHandler.FA_BNN_NXT);
 				continue;
 			}
 			if (firstChar == 'C' && tagName.equals("CODE")) {
@@ -651,8 +663,10 @@ final class TplParser {
 						} else {
 							assembly.addDebug(token + " // CATCH");
 							assembly.addInstruction(OperationsA01.XEENTRCTCH_P.instruction(catchCode.length() + 2, ResultHandler.FA_BNN_NXT));
-							assembly.addInstruction(OperationsA2X.XFDECLARE_D.instruction(new ModifierArgumentA30IMM("Exception"), ModifierArguments.AA0RB, 0, ResultHandler.FA_BNN_NXT));
-							assembly.addInstruction(OperationsA2X.XFDECLARE_D.instruction(new ModifierArgumentA30IMM("Error"), ModifierArguments.AA0RB, 0, ResultHandler.FA_BNN_NXT));
+							assembly.addInstruction(
+									OperationsA2X.XFDECLARE_D.instruction(new ModifierArgumentA30IMM("Exception"), ModifierArguments.AA0RB, 0, ResultHandler.FA_BNN_NXT));
+							assembly.addInstruction(
+									OperationsA2X.XFDECLARE_D.instruction(new ModifierArgumentA30IMM("Error"), ModifierArguments.AA0RB, 0, ResultHandler.FA_BNN_NXT));
 							assembly.addInstruction(catchCode);
 							assembly.addInstruction(Instructions.INSTR_ELEAVE_0_NN_NEXT);
 							bodyCatch = assembly.toProgram(initialOffset);
@@ -693,7 +707,7 @@ final class TplParser {
 						assembly.addError("Reference (lvalue) required (or 'null' if output should be ignored)!");
 						return;
 					}
-					reference.toReferenceReadBeforeWrite(assembly, null, null, false, true);
+					reference.toReferenceReadBeforeWrite(assembly, null, null, false, false, false);
 					assembly.addInstruction(Instructions.INSTR_FOTBLDR_0_SN_NEXT);
 				}
 
@@ -708,7 +722,7 @@ final class TplParser {
 					/** skip EENTRY and FOTNULL / FOTBLDR */
 					assembly.truncate(frameStartPosition - 2);
 					if (reference != null) {
-						reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArgumentA30IMM.EMPTY_STRING, ResultHandler.FA_BNN_NXT);
+						reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArgumentA30IMM.EMPTY_STRING, false, ResultHandler.FA_BNN_NXT);
 					}
 					continue;
 				}
@@ -717,7 +731,7 @@ final class TplParser {
 				assembly.addInstruction(Instructions.INSTR_ELEAVE_1_NN_NEXT);
 				assembly.addInstruction(Instructions.INSTR_FOTDONE_B_1_S_NN_NEXT);
 				if (reference != null) {
-					reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AA0RB, ResultHandler.FA_BNN_NXT);
+					reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AA0RB, false, ResultHandler.FA_BNN_NXT);
 				}
 				assembly.addDebug(tokens[currentTokenIndex] + " // /OUTPUT    // opened by: " + source);
 				continue;
@@ -735,14 +749,15 @@ final class TplParser {
 					return;
 				}
 				{
-					final ModifierArgument value = reference.toReferenceReadBeforeWrite(assembly, null, null, true, false);
+					final ModifierArgument value = reference.toReferenceReadBeforeWrite(assembly, null, null, true, true, false);
 					assert value != null : "Must not be NULL, class=" + reference.getClass().getName() + ", value=" + reference;
-					assembly.addInstruction(value == ModifierArguments.AE21POP
-						? Instructions.INSTR_BOR_EMPTYSTRING_1_S_S
-						: value == ModifierArguments.AA0RB
-							? Instructions.INSTR_BOR_EMPTYSTRING_1_R_S
-							/** looks like both arguments are detachable - BOR_T */
-							: OperationsA2X.XEBOR_T.instruction(value, ModifierArgumentA30IMM.EMPTY_STRING, 0, ResultHandler.FB_BSN_NXT));
+					assembly.addInstruction(
+							value == ModifierArguments.AE21POP
+								? Instructions.INSTR_BOR_EMPTYSTRING_1_S_S
+								: value == ModifierArguments.AA0RB
+									? Instructions.INSTR_BOR_EMPTYSTRING_1_R_S
+									/** looks like both arguments are detachable - BOR_T */
+									: OperationsA2X.XEBOR_T.instruction(value, ModifierArgumentA30IMM.EMPTY_STRING, 0, ResultHandler.FB_BSN_NXT));
 				}
 				assembly.addInstruction(Instructions.INSTR_FOTBLDR_0_SN_NEXT);
 				final InstructionEditable frameStart = OperationsA01.XEENTRNONE_P.instructionCreate(0, ResultHandler.FA_BNN_NXT);
@@ -755,7 +770,7 @@ final class TplParser {
 				if (instructionCount == 0) {
 					/** skip EENTRY and FOTNULL / FOTBLDR */
 					assembly.truncate(frameStartPosition - 2);
-					reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AE21POP, ResultHandler.FA_BNN_NXT);
+					reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AE21POP, false, ResultHandler.FA_BNN_NXT);
 					continue;
 				}
 
@@ -763,7 +778,7 @@ final class TplParser {
 				assembly.addInstruction(Instructions.INSTR_ELEAVE_1_NN_NEXT);
 				assembly.addInstruction(Instructions.INSTR_FOTDONE_B_1_S_NN_NEXT);
 				assembly.addInstruction(Instructions.INSTR_MADDS_D_BA_RS_V);
-				reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AA0RB, ResultHandler.FA_BNN_NXT);
+				reference.toReferenceWriteAfterRead(assembly, null, null, ModifierArguments.AA0RB, false, ResultHandler.FA_BNN_NXT);
 				assembly.addDebug(tokens[currentTokenIndex] + " // /OUTAPPEND    // opened by: " + source);
 				continue;
 			}
@@ -823,6 +838,7 @@ final class TplParser {
 	}
 
 	private TplParser() {
+
 		//
 	}
 }
