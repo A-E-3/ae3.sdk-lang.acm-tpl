@@ -8,6 +8,6 @@ Requires: \
 
 Provides: \
 	lang.acm-tpl \
-	source-process:compile-java \
+	--source-process:compile-java \
 	source-process:ae3-package:package \
 
