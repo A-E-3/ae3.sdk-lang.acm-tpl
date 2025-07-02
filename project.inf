@@ -1,4 +1,3 @@
-Type: ae3.Package
 Name: ae3.sdk-lang.acm-tpl
 Info: Scripting language: ACM.TPL
 Requires: \
