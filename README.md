@@ -1,1 +1,3 @@
 # ae3.sdk-lang.acm-tpl
+
+The `ACM.TPL` template language interpreter — the `<% %>`-delimited, ECMA-embedded language AxiomCMS skins are written in (see `magic-axiomer`). `TplParser`/`AcmTplLanguageImpl` parse and run it; tag handlers (`TagIF`, `TagCALL`, `TagSQL`/`TagSQLUSE`/`TagSQLBATCH`, `TagPROCESS`, `TagRECURSION`, `TagDEEPER`, `TagFINAL_EXIT`) implement the individual `<% %>` tags; `format/` holds output formatters (`FormatterXml`, `FormatterJs`, `FormatterDefault`, ...); `fn/` holds built-in functions (`FunctionSqlExec`, `FunctionDoAudit`, `FunctionRedirect`, `FunctionDoLog`). Requires `ae3.api`, `ae3.sdk`, `acm-base-api`.
