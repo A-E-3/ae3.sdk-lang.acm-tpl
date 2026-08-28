@@ -3,6 +3,7 @@ Info: Scripting language: ACM.TPL
 Requires: \
 	ae3.api \
 	ae3.sdk \
+	acm-base-api \
 
 Provides: \
 	lang.acm-tpl \
